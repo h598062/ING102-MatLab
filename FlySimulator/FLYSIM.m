@@ -13,8 +13,8 @@ function FLYSIM
     kwt     = 2048;        % Battery Level
     posStart =[-25000,0,500];  % Start position
     forwardVec = [1 0 0]';    % Initial direction of the plane
-    colorP = 'magenta';         % Color of plane
-    scaleP = 1.3;            % Scale plane 
+    colorP = 'yellow';         % Color of plane
+    scaleP = 2.0;            % Scale plane 
     
     textureDesert = imread('desert.jpg');
     textureSea = imread('sea.jpg');
@@ -175,7 +175,7 @@ function FLYSIM
 
     %% Initialize the plane
     function InitPlane()
-        fv = stlread('a10.stl');    
+        fv = stlread('low-poly_plane_1.stl');    
         vert = 0;       
         delete(findobj('type', 'patch'));
         p1 = patch(fv,'FaceColor',       colorP, ...
@@ -183,7 +183,7 @@ function FLYSIM
          'FaceLighting',    'gouraud',     ...
          'AmbientStrength', 0.35);
      
-        % rotate(p1, [1 0 0 ], 180);
+        rotate(p1, [0 0 1 ], 270);
         p1.Vertices = p1.Vertices .* scaleP;
         vert = p1.Vertices;
     end
