@@ -1,5 +1,5 @@
-% Taster:  AD: Venstre/Høyre  QE rulle  
-% W S Opp/Ned  P/M : Øk/Senk hastighet
+% Taster:  AD: Venstre/HÃ¸yre  QE rulle  
+% W S Opp/Ned  P/M : Ã˜k/Senk hastighet
 % V - Endre Observasjonspunkt
 function FLYSIM
     %% Intro stuff
