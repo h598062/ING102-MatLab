@@ -6,7 +6,7 @@ function FLYSIM
     close all
     
     %% Init Stuff - may be changed
-    FRAMES=  10; % 2->
+    FRAMES=  100; % 2->
     SURFACES = 50; % 4 ->
     firstPerson = true; % Do we start in 1st person view, or not?
     vel = 800;            % Velocity
@@ -215,17 +215,17 @@ function FLYSIM
              vel = max(5, vel * 1.05);
          elseif (key=='m') % Slow down
              vel = vel * 0.95;
-         elseif (key=='q')
+         elseif (key=='a')
              matRot = MR(0.05,0,0);
-         elseif (key=='e')
+         elseif (key=='d')
              matRot = MR(-0.05,0,0);
          elseif (key=='w')
              matRot = MR(0, 0.05,0);
          elseif (key=='s')
              matRot = MR(0, -0.05,0);
-         elseif (key=='a')
+         elseif (key=='e')
              matRot = MR(0, 0, 0.05);
-         elseif (key=='d')
+         elseif (key=='q')
              matRot = MR(0, 0, -0.05);
          end           
     end
