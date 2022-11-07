@@ -1,0 +1,41 @@
+Du skal 4-5 skjermbilder av flysimulatoren, og legge lenker til disse fra
+HTML hovedsiden i WEB oppgaven.  Oppgaven skal også leveres inn på ZIP format for kontroll. Den MÅ da kunne kjøre.
+Kall lenken "Prototype på Simulator for EL FLY:"
+FORBEREDELSER:
+Studer videoen GjennomgangFlySimulator. Installer simulatoren.
+(FLYSIM.ZIP)
+Taster: QE: Venstre/Høyre A E rulle W S Opp/Ned P/M : Øk/Sent
+hastighet
+Koden ser kanskje skremmende ut, men du skal bare gjøre justeringer. DEL 1
+bør bare ta 15 mim !!!
+
+
+SMÅJUSTER (DEL 1): OK
+
+Øverst i programmet kan egenskaper/variabler endres.
+Variabelen FRAMES må settes ihht prosessoren. En rask maskin, flere
+frames.
+Prøv å endre fargen på flyet og startposisjon. Eksperimenter.
+Flyet høres mer ut som en Traktor. Du kan jo finne en annen lyd. (El fly
+skal jo være litt annerledes) :=)
+(Se funksjonen EngineSound())
+
+
+LAGE NYTT LANDSKAP (DEL 2): OK
+Prøv å lage noen andre øyer.
+Prøv å endre teksture til øyene og evt havet. ..
+
+LAG EN ENKEL FUNKSJON (DEL 3): OK nesten
+Du skal også lage en knapp som skifter mellom hav/øyer, ørken/fjell,
+is/isfljell.
+Legg inn begrensning på hastighet, f.eks max 1500
+
+DIVERSE PUNKTER (DEL 4):
+Dersom flyet kjører saktere enn 100 skal det havarere. ( Se logikken for
+når flyet går tomt for strøm.)
+Endre på forbruks formelen slik at flyet bruker 5kwt for hver 100 enheter
+det stiger
+Implementer en alarm dersom du er mindre enn 200m over bakken, enten det
+er hav eller fjell.
+Flyet skal kunne lande. Farten må da være mellom 100-200 og vinkelen max
+15.

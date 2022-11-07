@@ -6,35 +6,44 @@ function FLYSIM
     close all
     
     %% Init Stuff - may be changed
-    FRAMES=  100; % 2->
+    FRAMES=  60; % 2->
     SURFACES = 50; % 4 ->
     firstPerson = true; % Do we start in 1st person view, or not?
     vel = 2000;            % Velocity
-    kwt     = 2048;        % Battery Level
+    kwt     = 10000;        % Battery Level
     posStart =[-25000,0,500];  % Start position
     forwardVec = [1 0 0]';    % Initial direction of the plane
     colorP = 'yellow';         % Color of plane
-    scaleP = 2.0;            % Scale plane 
+    scaleP = 5.0;            % Scale plane 
     
     textureDesert = imread('desert.jpg');
     textureSea = imread('sea.jpg');
+    textureSpaghet = imread('spaghetti.jpg');
     textureForrest = imread('forrest.jpg');
+    textureIce = imread('ice.jpg');
+    n = 1;
+    sufFlat = [];
         
     %% Other variables
     matRot   = eye(3);
     vert = 0;           % Vertices of the airplane
     p1 = [];            % The plane surfaces
     txtKwh = 0;           % Control kwh
+    txtdebug = 0;       % debug text
     txt1 = 0;         % Control speed
     txt2 = 0;        % Control height
+    txtalarm = 0; % alarm
     pos = posStart;
+    zCounter = 0;
+    prevZ = pos(3);
     rot = matRot;
     s1 = []; % Surface 1
     s2 = []; % Surface 2
+    s3 = []; % Surface 3
     pe = 0;  % Engine Sound  
     fig = figure;
     hold on;
-    fig.Position = [100 100 700 600]; % Size of program
+    fig.Position = [100 100 1400 900]; % Size of program
 
     % Disable axis viewing, don't allow axes to clip the plane
     fig.Children.Visible = 'off';
@@ -69,7 +78,8 @@ function FLYSIM
         z = pos(3);
         pos = vel*(rot*forwardVec*(tnew-told))' + pos;
         %If empty battery - let the plane fall
-        if (kwt < 0) % No more kwh
+        %If too low speed - let the plane fall
+        if (kwt < 0 || vel < 100) % No more kwh or Stalling
             pos(3) = z - 100;
         end
         %Update the plane's vertice new position and rotation
@@ -77,7 +87,7 @@ function FLYSIM
         % Check if plane crashes into grounds
         if TestCrash
             return
-        end    
+        end
         UpdateCamera();
         told = tnew;
         pause(1/FRAMES);
@@ -89,7 +99,7 @@ function FLYSIM
     %%
     function [fTC]= TestCrash()
         z = pos(3)-20;
-        if  z < 0  || z < GetZ(s1, pos) || z < GetZ(s2,pos)
+        if  z < 0  || z < GetZ(s1, pos) || z < GetZ(s2,pos) || z < GetZ(s3,pos)
              Crash();
              fTC= true;
         else   
@@ -98,6 +108,7 @@ function FLYSIM
     end
     %% Add some Islands
     function AddIslands
+        %% Define desert island
         [x,y,z] = peaks(SURFACES);
         x = x * 3000+30000;
         y = y * 6000-4000;
@@ -105,7 +116,17 @@ function FLYSIM
         s1=surf(x,y,z, ...
                'LineStyle','none','AmbientStrength',0.7);
         s1.FaceColor = 'texturemap';
-        s1.CData = textureDesert;    
+        s1.CData = textureDesert;
+
+        %% Define ice island
+        [x2,y2,z2] = peaks(SURFACES);
+        x2 = x2 * 4356;
+        y2 = y2 * 8722;
+        z2 = z2 * 435; %% z e høyde?
+        s3=surf(x2,y2,z2, ...
+               'LineStyle','none','AmbientStrength',0.7);
+        s3.FaceColor = 'texturemap';
+        s3.CData = textureIce;  
         
         %% Define a forrest island
         x = -2:2/sqrt(SURFACES):2;
@@ -140,7 +161,17 @@ function FLYSIM
             EngineStop();
         else
             kwt = kwt - 0.003 - vel*vel/10000000;
-        end 
+        end
+        tmpZ = pos(3);
+        if (tmpZ > prevZ)
+            tmp = tmpZ - prevZ;
+            zCounter = zCounter + tmp;
+        end
+        if (zCounter >= 100)
+            kwt = kwt - 5 * floor(zCounter / 100);
+            zCounter = mod(zCounter, 100);
+        end
+        prevZ = tmpZ;
     end
     %% Show Flight Info
     function ShowInfo()
@@ -148,6 +179,12 @@ function FLYSIM
             return;
         end
         txtKwh.String = "KWh : " + int2str(kwt);  
+        txtdebug.String = "zCounter : " + int2str(zCounter);
+        if (pos(3) < 200)
+            txtalarm.String = "ALARM";
+        else
+            txtalarm.String = "";
+        end
         txt2.String = sprintf('Speed: %s  Height: %s', ...
             int2str(vel), int2str(pos(3)) );
         x = int2str(pos(1)); y = int2str(pos(2));
@@ -162,28 +199,49 @@ function FLYSIM
         fuel = uipanel('Title','Fuel','Position',[.75 .01 .2 .15]);
         fuel.Title = 'Battery: ';
 
+        bytt = uicontrol('Style','pushbutton',...
+                 'String','Bytt','Position',[35,85,85,30],...
+                 'Callback',@bytt_callback);
+        set(bytt, 'FontSize', 14);
+
         h(end+1)  = fuel;
         txtKwh = uicontrol(fuel,'Style','text','Position',[3,3,140,30]);
         h(end+1)  = txtKwh;
+        txtdebug = uicontrol(fuel,'Style','text','Position',[3,30,140,30]);
+        h(end+1) = txtdebug;
+        txtalarm = uicontrol(fuel,'Style','text','Position',[100,60,140,30]);
+        h(end+1) = txtalarm;
         txt1 = uicontrol(inst,'Style','text','Position',[3,3,250,30]);
         h(end+1)  = txt1;
         txt2 = uicontrol(inst,'Style','text','Position',[3,30,250,30]);
         h(end+1)  = txt2;
+        
         set(h, 'FontSize', 14);
         set(h, 'BackgroundColor', 'green');
     end
-
+    %% Bytt knapp callback
+    function bytt_callback(~,~)
+        n = n + 1;
+        if n == 1
+            sufFlat.CData = textureSea;
+        elseif n == 2
+            sufFlat.CData = textureIce;
+        elseif n == 3
+            sufFlat.CData = textureSpaghet;
+            n = 0;
+        end
+    end
     %% Initialize the plane
     function InitPlane()
-        fv = stlread('low-poly_plane_1.stl');    
-        vert = 0;       
+        fv = stlread('T-85_X-Wing_Open_v1.1.stl');
+        vert = 0;
         delete(findobj('type', 'patch'));
         p1 = patch(fv,'FaceColor',       colorP, ...
          'EdgeColor',       'none',        ...
          'FaceLighting',    'gouraud',     ...
          'AmbientStrength', 0.35);
      
-        rotate(p1, [0 0 1 ], 270);
+        rotate(p1, [0 0 1 ], 90);
         p1.Vertices = p1.Vertices .* scaleP;
         vert = p1.Vertices;
     end
@@ -211,8 +269,12 @@ function FLYSIM
         key = varargin{2}.Key;
          if (key=='v')
              firstPerson = ~firstPerson;
-         elseif (key=='p') % Speed 
-             vel = max(5, vel * 1.05);
+         elseif (key=='p') % Speed
+             if vel >= 10000
+                 vel = 10000;
+             else
+                 vel = max(5, vel * 1.05);
+             end
          elseif (key=='m') % Slow down
              vel = vel * 0.95;
          elseif (key=='a')
@@ -243,8 +305,10 @@ function FLYSIM
     end
     %% Make Engine Sound
     function EngineSound()
-        [es,fs] = audioread('engine.wav');
-        pe = audioplayer(es,fs);
+        % [es,fs] = audioread('engine.wav');
+        [es,fs] = audioread("dog-of-wisdom.m4a");
+        es2 = es/50;
+        pe = audioplayer(es2,fs);
         if isplaying(pe)
             stop(pe);        
         end
@@ -256,8 +320,10 @@ function FLYSIM
     end    
     %% Crash Sound
     function Crash()
-        [xs,f] = audioread('crash_sound.wav');
-        pe = audioplayer(xs,f);
+        % [xs,f] = audioread('crash_sound.wav');
+        [xs,f] = audioread('windows-shutdown.opus');
+        xs2 = xs/150;
+        pe = audioplayer(xs2,f);
         play(pe);  
         p1.FaceColor = "Black";       
     end
