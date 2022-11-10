@@ -34,4 +34,6 @@ codegen/
 # Octave session info
 octave-workspace
 
+resources/
+
 # End of https://www.toptal.com/developers/gitignore/api/matlab
