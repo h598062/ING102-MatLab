@@ -7,7 +7,7 @@ function FLYSIM
     close all
 
     %% Init Stuff - may be changed
-    FRAMES=  60;                % 2 ->
+    FRAMES = 30;                % 2 ->
     SURFACES = 50;              % 4 ->
     firstPerson = true;         % Do we start in 1st person view, or not?
     vel = 600;                  % Velocity
@@ -17,7 +17,7 @@ function FLYSIM
     colorP = '#b8bf4f';         % Color of plane
     scaleP = 5.0;               % Scale plane
 
-    dbg = true;                 % boolean for å vise debug info
+    dbg = false;                % boolean for å vise debug info
 
     textureSea = imread('sea.jpg');
     textureForest = imread('forest.png');
@@ -57,7 +57,6 @@ function FLYSIM
     zCount = 0;
     prevZ = pos(3);
     rot = matRot;
-    lander = false;
     sufFlat = [];           % Sea
     s1 = [];                % Mountain
     s2 = [];                % Flat surface
@@ -101,22 +100,14 @@ function FLYSIM
         pos = vel*(rot*forwardVec*(tnew-told))' + pos;
         %If empty battery - let the plane fall
         %If too low speed - let the plane fall
-        if (kwt < 0 || (vel < 100 && ~lander)) % No more kwh or Stalling
+        if (kwt < 0 || vel < 100) % No more kwh or Stalling
             pos(3) = z - 100;
         end
         %Update the plane's vertice new position and rotation
         p1.Vertices = (rot*vert')' + repmat(pos,[size(vert,1),1]);
         % Check if plane crashes into grounds
-        lander = TestLanding;
-        if TestCrash && ~lander
+        if TestCrash
             return
-        end
-        if lander
-            if vel < 10
-                vel = 0;
-            else
-                vel=vel*0.8;
-            end
         end
         UpdateCamera();
         told = tnew;
@@ -135,16 +126,6 @@ function FLYSIM
              fTC= true;
         else
              fTC=false;
-        end
-    end
-    %% Checks if plane is landing 
-    function [fTL] =  TestLanding() % funker ikke enno
-        tmpVinkel = rotm2eul(matRot);
-        tmpVinkel = tmpVinkel(2);
-        if ((tmpVinkel <= 15 && tmpVinkel >= 0) && (vel <= 200))
-            fTL=true;
-        else
-            fTL=false;
         end
     end
 
@@ -341,6 +322,7 @@ function FLYSIM
         sufFlat.FaceColor = 'texturemap';
         sufFlat.CData = textureSea;
         sufFlat.AlphaData = 0.1;
+        sufFlat.MeshStyle = "none";
         camlight('headlight');
         camva(40); %view angle
     end
