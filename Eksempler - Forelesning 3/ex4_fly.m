@@ -19,15 +19,15 @@ vel = 5;
 pos = [-1500 10 8];
 forwardVec = [1 0 0];
 while (isvalid(fig))
-    camtarget(pos+[30 0 0]); % Camtaret is 10 units straight forward
-    campos(pos);
-    pos = (pos + forwardVec * vel); % Move forward
-    
-    if (pos > 0)
-        pos = [-1500 10 8];  % Reset
-    end
-    
-    pause(0.05);
+	camtarget(pos+[30 0 0]); % Camtaret is 10 units straight forward
+	campos(pos);
+	pos = (pos + forwardVec * vel); % Move forward
+	
+	if (pos > 0)
+		pos = [-1500 10 8];  % Reset
+	end
+	
+	pause(0.05);
 end
 
 
